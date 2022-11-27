@@ -10,8 +10,38 @@
           <label> Content</label>
           <input formControlName="content" type="text" class="form-control" />
         </div>
-        <button [disabled]="!AddPostForm.valid" class="btn btn-primary" type="submit">Add Post</button>
+        <button
+          [disabled]="!AddPostForm.valid"
+          class="btn btn-primary"
+          type="submit"
+        >
+          Add Post
+        </button>
       </form>
+    </div>
+  </div>
+</div>
+<hr />
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h4>Posts :</h4>
+      <button class="btn btn-primary" type="button" (click)="onFetchPosts()">
+        Fetch Posts
+      </button>
+      <hr>
+      <ul class="list-group" *ngIf="!isFetching; else loadingPosts">
+        <li class="list-group-item" *ngFor="let post of loadedPosts">
+          {{ post.title }}
+
+          <button class="btn btn-danger"  (click)="onDeletePost(post.id)">
+            Delete
+          </button>
+        </li>
+      </ul>
+      <ng-template #loadingPosts>
+        <div class="text-danger">Loading ...</div>
+      </ng-template>
     </div>
   </div>
 </div>
