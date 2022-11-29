@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from 'src/environments/environment';
+import { PostService } from './services/post.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,10 @@ import { environment } from 'src/environments/environment';
 export class AppComponent implements OnInit {
   title = 'HttpRequestsHelloWorld';
   baseUrl = environment.baseURL + '/api/posts';
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+    private postService: PostService
+  ) {}
   isFetching = false;
   loadedPosts: { id: number; title: string; content: string }[] = [];
   AddPostForm: FormGroup;
@@ -35,18 +39,38 @@ export class AppComponent implements OnInit {
   }
 
   private fetchPosts() {
+    let httpHeaders = new HttpHeaders();
+    httpHeaders = httpHeaders.append('CustomHeaderKey1', 'Test 1');
+    httpHeaders = httpHeaders.append('CustomHeaderKey2', 'Test 2');
+
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('title', 'ahmad');
+    searchParams = searchParams.append('content', 'البحث عن المحتوى');
+
     this.isFetching = true;
-    this.httpClient
-      .get<{ id: number; title: string; content: string }[]>(this.baseUrl)
-      .subscribe({
-        next: (data) => {
-          this.loadedPosts = data;
-          this.isFetching = false;
-        },
-        error: (error) => {
-          this.isFetching = false;
-        },
-      });
+    this.postService.getPosts().subscribe({
+      next: (data) => {
+        this.loadedPosts = data;
+        this.isFetching = false;
+      },
+      error: (error) => {
+        this.isFetching = false;
+      },
+    });
+    // this.httpClient
+    //   .get<{ id: number; title: string; content: string }[]>(this.baseUrl, {
+    //     headers: httpHeaders,
+    //     params: searchParams,
+    //   })
+    //   .subscribe({
+    //     next: (data) => {
+    //       this.loadedPosts = data;
+    //       this.isFetching = false;
+    //     },
+    //     error: (error) => {
+    //       this.isFetching = false;
+    //     },
+    //   });
   }
   onFetchPosts() {
     this.fetchPosts();
@@ -58,6 +82,19 @@ export class AppComponent implements OnInit {
       .subscribe((response) => {
         console.log(response);
         this.fetchPosts();
+      });
+  }
+
+  onUpdatePost() {
+    this.httpClient
+      .put(`${this.baseUrl}/102`, {
+        title: 'Updated Title Test',
+        content: 'Updated Content Abdallah',
+      })
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+        },
       });
   }
 }
